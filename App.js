@@ -1,13 +1,40 @@
 import { StatusBar } from 'expo-status-bar';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import AppNav from './components/AppNav';
+import Home from './components/Home';
+import * as Font from "expo-font";
+import { createStore } from 'redux';
+import rootReducer from './utilities';
+import { Provider } from 'react-redux';
+
+
+
+const store = createStore(rootReducer);
 
 export default function App() {
+
+  // async componentDidMount() {
+  //   await Font.loadAsync({
+  //     Roboto: require("native-base/Fonts/Roboto.ttf"),
+  //     Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
+  //   });
+  // }
+  useEffect(() => {
+    Font.loadAsync({
+      Feather: require("native-base/Fonts/Feather.ttf"),
+      FontAwesome: require("native-base/Fonts/FontAwesome.ttf"),
+      Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
+    });
+  }, [])
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Provider store={store}>
+
+      <AppNav>
+        <StatusBar backgroundColor="black"/>
+      </AppNav>   
+    </Provider>
   );
 }
 
