@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   ImageBackground,
   TouchableHighlight,
+  RefreshControl,
 } from "react-native";
 import styled from "styled-components/native";
 import { Toast, Card, CardItem } from "native-base";
@@ -17,12 +18,16 @@ import ReadMore from "react-native-read-more-text";
 import NavBar from "./NavBar";
 import Constants from "expo-constants";
 import { connect } from "react-redux";
-import { Feather } from "@expo/vector-icons";
+import { Feather, MaterialIcons, AntDesign } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import { useNavigation } from "@react-navigation/native";
 import * as WebBrowser from "expo-web-browser";
 import AppSports from "./AppSports";
 import Latest from "./Latest";
+import { LinearGradient } from "expo-linear-gradient";
+import Latest1 from "./Latest1";
+import Layout from "./constants/Layout";
+import Business from "./Business";
 
 const mapStateToProps = (state) => ({
   section: state.section,
@@ -44,6 +49,7 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 function Home(props) {
+  let carouselRef = useRef(null);
   const window = useWindowDimensions();
   const navigation = useNavigation();
 
@@ -57,12 +63,30 @@ function Home(props) {
     //setbottomData([])
     props.section.section == "latest" && GetNews();
     props.section.section == "Sports" && GetSportsNews();
+    props.section.section == "Business" && GetBusinessNews();
     //GetNews();
   }, [props.section.section]);
 
   const [bottomData, setbottomData] = useState([]);
+  const [sport_data, setSport_data] = useState([]);
+  const [business_data, setBusiness_data] = useState([]);
   const [liked, setLiked] = useState(false);
   const [result, setResult] = useState(null);
+  const [id, setId] = useState(1);
+  const [sport_id, setSportId] = useState(1);
+  const [business_id, setBusinessId] = useState(1);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    props.section.section == "Business"
+      ? GetBusinessNews()
+      : props.section.section == "Sports"
+      ? GetSportsNews()
+      : GetNews();
+    // props.section.section == "latest" && GetNews();
+    // props.section.section == "Sports" && GetSportsNews();
+  }, []);
 
   const _handlePressButtonAsync = async (url) => {
     let result = await WebBrowser.openBrowserAsync(url);
@@ -70,8 +94,7 @@ function Home(props) {
   };
 
   const GetNews = () => {
-    const uri =
-      "https://content.guardianapis.com/search?api-key=c00fbff9-46d8-4637-a0ee-a28a23cd3b51&show-elements=image,audio,video&page=1&show-fields=thumbnail";
+    const uri = `https://content.guardianapis.com/search?api-key=c00fbff9-46d8-4637-a0ee-a28a23cd3b51&show-elements=image,audio,video&page=${id}&show-fields=thumbnail`;
 
     fetch(uri, {
       method: "GET",
@@ -84,7 +107,7 @@ function Home(props) {
         res.response.results.map((item) => {
           item.sectionId;
         });
-
+        setRefreshing(false);
         const input = {
           sectionId: res.response.results.sectionId,
           sectionName: res.response.results.sectionName,
@@ -99,6 +122,7 @@ function Home(props) {
         props.saveData(input);
       })
       .catch((error) => {
+        setRefreshing(false);
         Toast.show({
           text: "Server Error",
           buttonText: "Okay",
@@ -109,8 +133,7 @@ function Home(props) {
   };
 
   const GetSportsNews = () => {
-    const uri =
-      "https://content.guardianapis.com/search?api-key=c00fbff9-46d8-4637-a0ee-a28a23cd3b51&show-elements=image,audio,video&page=1&show-fields=thumbnail&section=football";
+    const uri = `https://content.guardianapis.com/search?api-key=c00fbff9-46d8-4637-a0ee-a28a23cd3b51&show-elements=image,audio,video&page=${sport_id}&show-fields=thumbnail&section=football`;
 
     fetch(uri, {
       method: "GET",
@@ -121,7 +144,40 @@ function Home(props) {
 
         //     console.log("one ",item.fields.thumbnail ?? "envy")
         // })
-        setbottomData(res.response.results);
+        setSport_data(res.response.results);
+        setRefreshing(false);
+        // Toast.show({
+        //     text: "Success",
+        //     buttonText: "Okay",
+        //     duration: 6000,
+        //     type: "success",
+        //   });
+      })
+      .catch((error) => {
+        setRefreshing(false);
+        Toast.show({
+          text: "Server Error",
+          buttonText: "Okay",
+          duration: 8000,
+          type: "danger",
+        });
+      });
+  };
+
+  const GetBusinessNews = () => {
+    const uri = `https://content.guardianapis.com/search?api-key=c00fbff9-46d8-4637-a0ee-a28a23cd3b51&show-elements=image,audio,video&page=${business_id}&show-fields=thumbnail&section=business`;
+
+    fetch(uri, {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((res) => {
+        // res.response.results.map((item) => {
+
+        //     console.log("one ",item.fields.thumbnail ?? "envy")
+        // })
+        setRefreshing(false);
+        setBusiness_data(res.response.results);
 
         // Toast.show({
         //     text: "Success",
@@ -131,6 +187,7 @@ function Home(props) {
         //   });
       })
       .catch((error) => {
+        setRefreshing(false);
         Toast.show({
           text: "Server Error",
           buttonText: "Okay",
@@ -328,16 +385,31 @@ function Home(props) {
             >
               {item.webTitle}
             </Text>
-            <Text
+            <View
               style={{
-                fontSize: 12,
-                color: "#CBCFD3",
-                fontWeight: "bold",
+                flexDirection: "row",
+                alignItems: "center",
+
                 marginTop: 20,
               }}
             >
-              {item.sectionName.toUpperCase()}
-            </Text>
+              <AntDesign
+                name="tags"
+                size={16}
+                color="#ffffff"
+                style={{ marginRight: 5 }}
+              />
+
+              <Text
+                style={{
+                  fontSize: 12,
+                  color: "#CBCFD3",
+                  fontWeight: "bold",
+                }}
+              >
+                {item.sectionName.toUpperCase()}
+              </Text>
+            </View>
           </View>
         </ImageBackground>
       </TouchableHighlight>
@@ -365,35 +437,191 @@ function Home(props) {
       </Text>
     );
   };
+  const _renderItem = ({ item, index }) => {
+    const image = item.fields ?? {
+      thumbnail:
+        "https://cdn.pixabay.com/photo/2018/08/05/13/07/architecture-3585567_960_720.jpg",
+    };
+    return (
+      <TouchableOpacity
+        style={styles.slide}
+        activeOpacity={0.95}
+        onPress={() => _handlePressButtonAsync(item.webUrl)}
+      >
+        <ImageBackground
+          style={{ ...StyleSheet.absoluteFillObject }}
+          imageStyle={{ borderRadius: 20 }}
+          source={{ uri: image.thumbnail }}
+        />
+        <LinearGradient
+          colors={["transparent", "rgba(0,0,0,0.5)"]}
+          style={{
+            ...StyleSheet.absoluteFillObject,
+            borderRadius: 20,
+          }}
+        />
+        <View style={styles.slideContent}>
+          {/* <View style={{ alignItems: "flex-end", alignSelf: "flex-end" }}>
+            <View
+              style={{
+                width: "20%",
+                alignContent: "center",
+                justifyContent: "center",
+                alignItems: "center",
+                backgroundColor: "rgba(0,0,0, 0.09)",
+                borderRadius: 5,
+                paddingBottom: 5,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 10,
+                  fontWeight: "bold",
+                  color: "#fff",
+                  textAlign: "center",
+                }}
+              >
+                Success Rate
+              </Text>
+            </View>
+          </View> */}
+
+          <View
+            style={{
+              alignSelf: "flex-end",
+              justifyContent: "flex-end",
+              flex: 1,
+            }}
+          >
+            <View style={{ flexDirection: "row" }}>
+              <Text style={[styles.slideTitle, { flex: 1 }]}>
+                {item.webTitle}
+              </Text>
+            </View>
+            <View style={{ flexDirection: "row" }}>
+              <AntDesign
+                name="tags"
+                size={16}
+                color="#ffffff"
+                style={{ marginTop: 5, marginRight: 5 }}
+              />
+              <Text style={styles.slideSubtitle}>{item.sectionName}</Text>
+            </View>
+
+            <View
+              style={[
+                styles.topArtisanFooter,
+                { alignItems: "center", marginTop: 10 },
+              ]}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  width: "100%",
+                }}
+              >
+                <SkillBadge>
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      fontWeight: "bold",
+                      color: "#8E87F1",
+                    }}
+                  ></Text>
+                </SkillBadge>
+                <SkillBadge>
+                  <Text
+                    style={{
+                      fontSize: 11,
+                      fontWeight: "bold",
+                      color: "#8E87F1",
+                    }}
+                  ></Text>
+                </SkillBadge>
+              </View>
+            </View>
+          </View>
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View
       style={{
         paddingVertical: Constants.statusBarHeight,
-        backgroundColor: "rgb(199, 202, 206)",
+        // backgroundColor: "rgb(199, 202, 206)",
+        backgroundColor: "white",
+        flex: 1,
       }}
     >
-      <View style={{ width: "100%" }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Image
+          source={require("../assets/rsz_hand_logo.png")}
+          style={{ width: 50, height: 50 }}
+          resizeMode="cover"
+        />
+        <Text
+          style={{ fontFamily: "sans-serif", fontSize: 15, fontWeight: "700" }}
+        >
+          Handy
+        </Text>
+      </View>
+      <View
+        style={{
+          width: "100%",
+          marginTop: -0,
+          backgroundColor: "rgb(199, 202, 206)",
+          alignItems: "center",
+          justifyContent: "center",
+          height: 50,
+        }}
+      >
         <NavBar />
       </View>
-      <View>{/* <Text> Title</Text> */}</View>
 
-      {props.section.section == "latest" && (
-        <Latest
-          data={bottomData}
-          renderMethod1={_renderReviewsItem}
-          renderMethod2={_renderReviewItem}
-        />
-      )}
+      {/* <LinearGradient
+        colors={["transparent", "teal"]}
+        style={{
+          ...StyleSheet.absoluteFillObject,
+        }}
+      /> */}
+      <ScrollView
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={["teal", "teal"]}
+          />
+        }
+        style={{ flex: 1 }}
+      >
+        {props.section.section == "latest" && (
+          <Latest1
+            data={bottomData}
+            renderMethod1={_renderItem}
+            refs={carouselRef}
+            // renderMethod2={_renderReviewItem}
+          />
+        )}
 
-      {props.section.section == "Sports" && (
-        <AppSports data={bottomData} renderMethod={renderDesignItem} />
-      )}
+        {props.section.section == "Sports" && (
+          <AppSports data={sport_data} renderMethod={renderDesignItem} />
+        )}
+        {props.section.section == "Business" && (
+          <Business data={business_data} renderMethod={renderDesignItem} />
+        )}
+      </ScrollView>
     </View>
   );
 }
-
-const styles = StyleSheet.create({});
 
 const SkillBadge = styled.View`
   margin-vertical: 5px;
@@ -402,5 +630,32 @@ const SkillBadge = styled.View`
   border-radius: 8px;
   margin-right: 10px;
 `;
+const styles = StyleSheet.create({
+  slide: {
+    height: Layout.window.height * 0.6,
+    borderRadius: 20,
+    backgroundColor: "#c1c1c1",
+  },
+  slideContent: {
+    flex: 1,
+    // justifyContent: "flex-end",
+    paddingHorizontal: 20,
+    paddingVertical: 15,
+  },
+  slideTitle: {
+    color: "white",
+    fontSize: 24,
+    fontWeight: "700",
+  },
+  slideSubtitle: {
+    marginTop: 5,
+    fontSize: 14,
+    fontWeight: "500",
+    color: "white",
+  },
+  topArtisanFooter: {
+    flexDirection: "row",
+  },
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(Home);

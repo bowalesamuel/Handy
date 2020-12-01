@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, FlatList } from "react-native";
 
-export default function AppSports(props) {
+export default function Business(props) {
   return (
     <View style={{ flex: 1 }}>
       <FlatList

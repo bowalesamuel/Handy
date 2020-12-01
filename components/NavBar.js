@@ -30,7 +30,7 @@ function NavBar(props) {
 
   return (
     <View style={{ paddingHorizontal: 10 }}>
-      <View style={{ flexDirection: "row", marginTop: 20 }}>
+      <View style={{ flexDirection: "row", marginTop: 0 }}>
         <TopBar
           onPress={() => {
             setSection("latest");
@@ -81,16 +81,19 @@ function NavBar(props) {
         </TopBar>
         <TopBar
           onPress={() => {
-            setSection("Design");
-            console.log("Design");
+            setSection("Business");
+            props.setSections("Business");
+            console.log("Business");
           }}
         >
           <TopText
-            style={{ fontFamily: section == "Design" ? "monospace" : "Roboto" }}
+            style={{
+              fontFamily: section == "Business" ? "monospace" : "Roboto",
+            }}
           >
-            Design
+            Business
           </TopText>
-          {section == "Design" && (
+          {section == "Business" && (
             <View
               style={{
                 backgroundColor: "#EA5B5B",

@@ -1,19 +1,18 @@
-import { StatusBar } from 'expo-status-bar';
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import AppNav from './components/AppNav';
-import Home from './components/Home';
+import { StatusBar } from "expo-status-bar";
+import React, { useEffect } from "react";
+import { StyleSheet, Text, View } from "react-native";
+import AppNav from "./components/AppNav";
+import Home from "./components/Home";
 import * as Font from "expo-font";
-import { createStore } from 'redux';
-import rootReducer from './utilities';
-import { Provider } from 'react-redux';
-
-
+import { createStore } from "redux";
+import rootReducer from "./utilities";
+import { Provider } from "react-redux";
 
 const store = createStore(rootReducer);
+//remove this in production || after demo
+console.disableYellowBox = true;
 
 export default function App() {
-
   // async componentDidMount() {
   //   await Font.loadAsync({
   //     Roboto: require("native-base/Fonts/Roboto.ttf"),
@@ -26,14 +25,13 @@ export default function App() {
       FontAwesome: require("native-base/Fonts/FontAwesome.ttf"),
       Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
     });
-  }, [])
+  }, []);
 
   return (
     <Provider store={store}>
-
       <AppNav>
-        <StatusBar backgroundColor="black"/>
-      </AppNav>   
+        <StatusBar backgroundColor="black" />
+      </AppNav>
     </Provider>
   );
 }
@@ -41,8 +39,8 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: "#fff",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

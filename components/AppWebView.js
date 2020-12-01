@@ -56,6 +56,7 @@ function AppWebView(props) {
         // onLoadStart={() => setUrl(props.route.params.item.webUrl)}
         // onLoadEnd={() => setUrl(props.route.params.item.webUrl)}
         onLoadProgress={() => setUrl(props.route.params.item.webUrl)}
+        
       />
     </View>
   );
