@@ -1,6 +1,6 @@
 # Handy
 
-This is app has two sides, news and places.
+This is a Mobile app has two sides, news and places built with React Native.
 It directs the user to the webpage with more information of the news and Place
 
 Guardian Free News API was used to get the news.
