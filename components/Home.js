@@ -32,6 +32,7 @@ import Latest1 from "./Latest1";
 import Layout from "./constants/Layout";
 import Business from "./Business";
 import Swipeable from "react-native-gesture-handler/Swipeable";
+import Google from "../google.json";
 
 const mapStateToProps = (state) => ({
   section: state.section,
@@ -180,7 +181,7 @@ function Home(props) {
   };
 
   const GetNews = () => {
-    const uri = `https://content.guardianapis.com/search?api-key=c00fbff9-46d8-4637-a0ee-a28a23cd3b51&show-elements=image,audio,video&page=${id}&show-fields=thumbnail`;
+    const uri = `https://content.guardianapis.com/search?api-key=${Google.Guardian_api_key}&show-elements=image,audio,video&page=${id}&show-fields=thumbnail`;
 
     fetch(uri, {
       method: "GET",
