@@ -15,10 +15,26 @@
     },
     "assetBundlePatterns": ["**/*"],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.deybea.myNews",
+      "googleServicesFile": "./GoogleService-Info.plist",
+      "config": {
+        "googleSignIn": {
+          "reservedClientId": "com.googleusercontent.apps.301427357337-m5hkup70ntp5q94edfcutsus4umvnbc0"
+        }
+      }
     },
     "web": {
       "favicon": "./assets/favicon.png"
+    },
+    "android": {
+      "package": "com.deybea.myNews",
+      "googleServicesFile": "./google-services.json",
+      "config": {
+        "googleSignIn": {
+          "apiKey": "AIzaSyCsKaRScfCRaBGRhE9R34FCrz1NX4pRCxg"
+        }
+      }
     }
   }
 }

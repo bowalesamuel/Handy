@@ -10,6 +10,9 @@ import {
   ImageBackground,
   TouchableHighlight,
   RefreshControl,
+  PanResponder,
+  Animated,
+  Dimensions,
 } from "react-native";
 import styled from "styled-components/native";
 import { Toast, Card, CardItem } from "native-base";
@@ -28,6 +31,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Latest1 from "./Latest1";
 import Layout from "./constants/Layout";
 import Business from "./Business";
+import Swipeable from "react-native-gesture-handler/Swipeable";
 
 const mapStateToProps = (state) => ({
   section: state.section,
@@ -37,7 +41,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     setLoading: (data) =>
       dispatch({
-        type: "TOGGLE_SECTION",
+        type: "TOGGLE_SECTIO",
         data,
       }),
     saveData: (data) =>
@@ -45,13 +49,95 @@ const mapDispatchToProps = (dispatch) => {
         type: "API_DATA",
         data,
       }),
+    setSections: (data) =>
+      dispatch({
+        type: "TOGGLE_SECTION",
+        data,
+      }),
   };
 };
 
 function Home(props) {
+  useEffect(() => {
+    resetPosition();
+  }, [props.section.section]);
   let carouselRef = useRef(null);
+  const SCREEN_WIDTH = Dimensions.get("window").width;
+  const SWIPE_THRESHOLD = 0.7 * SCREEN_WIDTH;
+  const pan = useState(new Animated.ValueXY())[0];
   const window = useWindowDimensions();
   const navigation = useNavigation();
+
+  const panResponder = useState(
+    PanResponder.create({
+      //   onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: () => true,
+      onPanResponderGrant: () => {
+        // console.log("moved");
+        pan.setOffset({
+          x: pan.x._value,
+          y: pan.y._value,
+        });
+      },
+      onPanResponderMove: (_, gesture) => {
+        pan.x.setValue(gesture.dx);
+        // console.log({ ...pan.x });
+        // pan.y.setValue(gesture.dy);
+      },
+      //   console.log(args[1]),
+      // Animated.event([null, { dx: pan.x }], {
+      //   useNativeDriver: false,
+      // }),
+      // Animated.event([null, { dx: pan.x, dy: pan.y }]),
+      onPanResponderRelease: (_, gesture) => {
+        if (gesture.dx > SWIPE_THRESHOLD) {
+          console.log("Right");
+          forceRight();
+        } else if (gesture.dx < -SWIPE_THRESHOLD) {
+          console.log("Left");
+          forceLeft();
+        } else {
+          console.log("not pass");
+          resetPosition();
+        }
+        console.log(SCREEN_WIDTH, SWIPE_THRESHOLD);
+        // console.log("Before", { ...pan.x });
+        // pan.x.setValue(0);
+        // pan.flattenOffset();
+        // console.log("After", { ...pan.x });
+      },
+    })
+  )[0];
+
+  const resetPosition = () => {
+    Animated.spring(pan, {
+      toValue: { x: 0, y: 0 },
+      useNativeDriver: false,
+    }).start();
+    pan.flattenOffset();
+  };
+
+  const forceRight = () => {
+    Animated.spring(pan, {
+      toValue: { x: SCREEN_WIDTH + 100, y: 0 },
+      useNativeDriver: false,
+    }).start();
+    // props.setSections("latest");
+    pan.flattenOffset();
+    Animated.spring(pan, {
+      toValue: { x: 0, y: 0 },
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const forceLeft = () => {
+    // Animated.spring(pan, {
+    //   toValue: { x: -SCREEN_WIDTH - 100, y: 0 },
+    //   useNativeDriver: false,
+    // }).start();
+    props.setSections("Business");
+    pan.flattenOffset();
+  };
 
   const anycolor = [
     "rgb(158,67,112)",
@@ -550,7 +636,7 @@ function Home(props) {
   return (
     <View
       style={{
-        paddingVertical: Constants.statusBarHeight,
+        paddingTop: Constants.statusBarHeight,
         // backgroundColor: "rgb(199, 202, 206)",
         backgroundColor: "white",
         flex: 1,
@@ -561,6 +647,7 @@ function Home(props) {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "center",
+          // backgroundColor: "red",
         }}
       >
         <Image
@@ -578,7 +665,7 @@ function Home(props) {
         style={{
           width: "100%",
           marginTop: -0,
-          backgroundColor: "rgb(199, 202, 206)",
+          // backgroundColor: "rgb(199, 202, 206)",
           alignItems: "center",
           justifyContent: "center",
           height: 50,
@@ -603,6 +690,18 @@ function Home(props) {
         }
         style={{ flex: 1 }}
       >
+        {/* <Animated.View
+          style={[
+            {
+              // backgroundColor: "red",
+              flex: 1,
+              width: "100%",
+              // height: 100,
+            },
+            pan.getLayout(),
+          ]}
+          {...panResponder.panHandlers}
+        > */}
         {props.section.section == "latest" && (
           <Latest1
             data={bottomData}
@@ -613,11 +712,38 @@ function Home(props) {
         )}
 
         {props.section.section == "Sports" && (
-          <AppSports data={sport_data} renderMethod={renderDesignItem} />
+          <Animated.View
+            style={[
+              {
+                // backgroundColor: "red",
+                flex: 1,
+                width: "100%",
+                // height: 100,
+              },
+              // pan.getLayout(),
+            ]}
+            // {...panResponder.panHandlers}
+          >
+            <AppSports data={sport_data} renderMethod={renderDesignItem} />
+          </Animated.View>
         )}
         {props.section.section == "Business" && (
-          <Business data={business_data} renderMethod={renderDesignItem} />
+          <Animated.View
+            style={[
+              {
+                // backgroundColor: "red",
+                flex: 1,
+                width: "100%",
+                // height: 100,
+              },
+              // pan.getLayout(),
+            ]}
+            {...panResponder.panHandlers}
+          >
+            <Business data={business_data} renderMethod={renderDesignItem} />
+          </Animated.View>
         )}
+        {/* </Animated.View> */}
       </ScrollView>
     </View>
   );

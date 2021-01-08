@@ -26,14 +26,25 @@ function NavBar(props) {
     setSection(props.section.section);
   }, []);
 
+  useEffect(() => {
+    setSection(props.section.section);
+  }, [props.section.section]);
+
   const [section, setSection] = useState("latest");
 
   return (
-    <View style={{ paddingHorizontal: 10 }}>
-      <View style={{ flexDirection: "row", marginTop: 0 }}>
+    <View style={{ paddingHorizontal: 0, flex: 1, width: "100%" }}>
+      <View
+        style={{
+          flexDirection: "row",
+          marginTop: 0,
+          flex: 1,
+          backgroundColor: "rgb(36, 56, 77)",
+        }}
+      >
         <TopBar
           onPress={() => {
-            setSection("latest");
+            // setSection("latest");
             props.setSections("latest");
             console.log("latest");
           }}
@@ -81,7 +92,7 @@ function NavBar(props) {
         </TopBar>
         <TopBar
           onPress={() => {
-            setSection("Business");
+            // setSection("Business");
             props.setSections("Business");
             console.log("Business");
           }}
@@ -106,7 +117,7 @@ function NavBar(props) {
           )}
         </TopBar>
 
-        <TopBar
+        {/* <TopBar
           onPress={() => {
             setSection("Tech");
             console.log("Tech");
@@ -128,7 +139,7 @@ function NavBar(props) {
               }}
             />
           )}
-        </TopBar>
+        </TopBar> */}
       </View>
     </View>
   );
@@ -170,9 +181,11 @@ const TopBar = styled.TouchableOpacity`
   margin-right: 5px;
   align-items: center;
   justify-content: center;
+  flex-grow: 1px;
 `;
 const TopText = styled.Text`
   font-size: 15px;
+  color: white;
 `;
 
 export default connect(mapStateToProps, mapDispatchToProps)(NavBar);

@@ -7,6 +7,8 @@ import * as Font from "expo-font";
 import { createStore } from "redux";
 import rootReducer from "./utilities";
 import { Provider } from "react-redux";
+import AppLogin from "./Auth/AppLogin";
+import AppTest from "./components/constants/AppTest";
 
 const store = createStore(rootReducer);
 //remove this in production || after demo
@@ -29,6 +31,8 @@ export default function App() {
 
   return (
     <Provider store={store}>
+      {/* <AppTest /> */}
+      {/* <AppLogin /> */}
       <AppNav>
         <StatusBar backgroundColor="black" />
       </AppNav>

@@ -61,7 +61,7 @@ export default function AppNav() {
         >
           <Tab.Screen name="Home" component={HomeNav} />
           <Tab.Screen name="Places" component={Timezones} />
-          <Tab.Screen name="Settings" component={NavBar} />
+          {/* <Tab.Screen name="Settings" component={NavBar} /> */}
         </Tab.Navigator>
       </NavigationContainer>
     </Root>
